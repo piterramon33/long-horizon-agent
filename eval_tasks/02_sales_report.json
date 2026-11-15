@@ -1,0 +1,14 @@
+{
+  "id": "sales_report",
+  "about": "Data analysis on an input file: numbers must be computed, not guessed.",
+  "prompt": "inputs/sales.csv has one row per sale (revenue = units x unit_price). Write report.md with (1) a markdown table of total revenue per region, sorted from highest to lowest, and (2) the month with the highest total revenue and its revenue. Compute every number with Python.",
+  "inputs": ["fixtures/sales"],
+  "checks": [
+    {"type": "file_contains", "path": "report.md", "pattern": "\\|"},
+    {"type": "file_contains", "path": "report.md", "pattern": "NOA[^\\n]*21[,.\\s]?500"},
+    {"type": "file_contains", "path": "report.md", "pattern": "Patagonia[^\\n]*12[,.\\s]?02[34]"},
+    {"type": "file_contains", "path": "report.md", "pattern": "2026-03|march"},
+    {"type": "file_contains", "path": "report.md", "pattern": "15[,.\\s]?26[78]"},
+    {"type": "inputs_intact"}
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "id": "primes",
+  "about": "One coder, real computation in the sandbox. Short task, sanity check.",
+  "prompt": "Use Python to find how many prime numbers there are below 10,000 and what they add up to. Write both numbers to answer.md, one sentence each.",
+  "inputs": [],
+  "checks": [
+    {"type": "file_contains", "path": "answer.md", "pattern": "\\b1,?229\\b"},
+    {"type": "file_contains", "path": "answer.md", "pattern": "\\b5,?736,?396\\b"}
+  ]
+}

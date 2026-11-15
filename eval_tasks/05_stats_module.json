@@ -1,0 +1,15 @@
+{
+  "id": "stats_module",
+  "about": "Long horizon: three stages by three sub-agents, code and tests run in the sandbox until green. Needs 10+ steps.",
+  "prompt": "Build a small pure-Python statistics module in three stages, each done by a different sub-agent. (1) A coder writes stats.py with mean, median, mode and stdev (the sample standard deviation), each raising ValueError on an empty list, using only the standard library and without importing the statistics module; mode returns the smallest of the most common values. The same coder writes test_stats.py with unittest tests for every function and runs them in the sandbox until they pass. (2) A second coder reads both files, adds test_edge.py with edge cases (a single element, negative numbers, floats, ties in mode), runs all the tests and fixes stats.py if any fail. (3) A writer writes NOTES.md with the final test output and one line per function explaining how it works.",
+  "inputs": [],
+  "checks": [
+    {"type": "min_steps", "n": 10},
+    {"type": "file_exists", "path": "test_stats.py"},
+    {"type": "file_exists", "path": "test_edge.py"},
+    {"type": "file_contains", "path": "NOTES.md", "pattern": "\\bOK\\b|passed"},
+    {"type": "file_not_contains", "path": "stats.py", "pattern": "import statistics|from statistics"},
+    {"type": "sandbox_python", "code": "import math, stats\nassert stats.mean([1, 2, 3, 4]) == 2.5\nassert stats.median([3, 1, 2]) == 2\nassert stats.median([4, 1, 3, 2]) == 2.5\nassert stats.mode([1, 2, 2, 3]) == 2\nassert stats.mode([3, 1, 3, 1, 2]) == 1\nassert math.isclose(stats.stdev([2, 4, 4, 4, 5, 5, 7, 9]), 2.138089935299395)\nfor f in (stats.mean, stats.median, stats.mode, stats.stdev):\n    try:\n        f([])\n    except ValueError:\n        continue\n    raise SystemExit(f.__name__ + '([]) did not raise ValueError')\nprint('hidden tests passed')\n"},
+    {"type": "sandbox_python", "code": "import sys, unittest\nsuite = unittest.TestLoader().discover('.', pattern='test_*.py')\nresult = unittest.TextTestRunner(verbosity=0).run(suite)\nsys.exit(0 if result.wasSuccessful() and result.testsRun >= 6 else 1)\n"}
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "cold_chain_brief",
+  "about": "Parallel sub-agents: three researchers at once, then a writer that must spot the planted conflicts.",
+  "prompt": "inputs/ holds three cold-chain documents from different suppliers. Use one researcher per document, working in parallel, then write brief.md with one section per document (its temperature limits, record-keeping and reporting rules) and a final Conflicts section listing every point where the documents disagree.",
+  "inputs": ["fixtures/cold_chain"],
+  "checks": [
+    {"type": "min_parallel", "n": 3},
+    {"type": "file_contains", "path": "brief.md", "pattern": "Northwind"},
+    {"type": "file_contains", "path": "brief.md", "pattern": "Bluepeak"},
+    {"type": "file_contains", "path": "brief.md", "pattern": "Harbor"},
+    {"type": "file_contains", "path": "brief.md", "pattern": "-18"},
+    {"type": "file_contains", "path": "brief.md", "pattern": "conflict"},
+    {"type": "file_contains", "path": "brief.md", "pattern": "(?<![\\d.])5\\s*(°|º)?\\s*C\\b"},
+    {"type": "file_contains", "path": "brief.md", "pattern": "\\b(1|one)[\\s-]*year"},
+    {"type": "file_contains", "path": "brief.md", "pattern": "48\\s*h"}
+  ]
+}
