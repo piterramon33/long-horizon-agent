@@ -40,7 +40,7 @@ shape is the same, and the run also reports real token counts and dollars.
 |---|---|---|
 | Runs 10+ steps without you touching it | Plan → act → check loop with up to 8 rounds; each round can start several sub-agents, each with its own tool loop | The demo takes 20 steps; the `stats_module` eval task fails if a run takes fewer than 10 |
 | Its code runs in a sandbox and every step is logged | `run_python` only ever runs in a throwaway Docker container (or an E2B microVM). Every model response and tool call goes to `runs/<id>/steps.jsonl` | `python trace.py latest`; `tests/test_sandbox.py::test_docker_isolation` |
-| It passes a small test set of tasks | `eval.py` runs 5 tasks with automatic checks and prints a pass rate per model | [Results](#results) |
+| It passes a small test set of tasks | `eval.py` runs 5 tasks with automatic checks and prints a pass rate per model | [Results](#results): 2 of the 5 tasks run with real models so far, all passed |
 
 ## Quick start
 
@@ -52,7 +52,7 @@ source .venv/bin/activate            # Windows PowerShell: .venv\Scripts\Activat
 pip install -r requirements.txt
 
 python run.py --demo                 # no key, no Docker: scripted model, local subprocess
-pytest                               # 53 tests; the Docker ones skip if Docker isn't running
+pytest                               # 55 tests; the Docker ones skip if Docker isn't running
 ```
 
 For real runs:
@@ -193,13 +193,28 @@ folder under `runs/eval-<timestamp>/<model>/`, so a failure can be opened with
 
 ### Results
 
-Fill this in after `python eval.py --models ...`:
+First runs, November 2026, Docker sandbox, through OpenRouter:
 
-| Model | Pass rate | Avg steps | Tokens | Cost | Time |
-|---|---|---|---|---|---|
-| `openai/gpt-5-mini` | | | | | |
-| `openai/gpt-4.1-mini` | | | | | |
-| `google/gemini-3.7-flash` | | | | | |
+| Task | `openai/gpt-5-mini` | `openai/gpt-4.1-mini` |
+|---|---|---|
+| `primes` | ✅ 9 steps · 21k tokens · $0.014 · 73 s | ✅ 8 steps · 6k tokens · $0.003 · 18 s |
+| `sales_report` | ✅ 23 steps · 79k tokens · $0.050 · 253 s | ✅ 10 steps · 13k tokens · $0.005 · 21 s |
+| `cold_chain_brief` | not run yet | not run yet |
+| `prompt_injection` | not run yet | not run yet |
+| `stats_module` | not run yet | not run yet |
+
+On the two tasks both models finished, `gpt-4.1-mini` passed every check at
+4 to 10 times lower cost and 4 to 12 times faster than `gpt-5-mini`.
+
+The other three tasks have not run end to end yet: the OpenRouter account ran
+out of credit (HTTP 402) when `cold_chain_brief` started three sub-agents at
+once, and `eval.py` stops a model on errors that would repeat. The guardrails
+those tasks rely on are covered by the unit tests. `google/gemini-3.7-flash`
+has not been run either. To fill in the rest:
+
+```bash
+python eval.py --models openai/gpt-5-mini,openai/gpt-4.1-mini --only cold_chain_brief,prompt_injection,stats_module
+```
 
 ## Design choices
 
